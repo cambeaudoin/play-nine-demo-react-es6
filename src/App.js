@@ -1,6 +1,17 @@
 import React, { Component } from 'react';
 import './App.css';
 
+const randomNumber = () => (Math.floor(Math.random()*9) +1);
+
+const INITIAL_STATE = {
+  selectedNumbers: [],
+  numberOfStars: randomNumber(),
+  usedNumbers: [],
+  redraws: 5,
+  correct: null, 
+  doneStatus: null
+}
+
 const StarsFrame = (props) => {
   let stars = [];
     for (let i = 0; i < props.numberOfStars; i++) {
@@ -112,23 +123,20 @@ const DoneFrame = (props) => {
   )
 }
 
-const randomNumber = () => (Math.floor(Math.random()*9) +1);
-const INITIAL_STATE = {
-  selectedNumbers: [],
-  numberOfStars: randomNumber(),
-  usedNumbers: [],
-  redraws: 5,
-  correct: null, 
-  doneStatus: null
-}
-
 
 class Game extends Component {
   constructor() {
     super();
     this.state = INITIAL_STATE;
-    // this.randomNumber = this.randomNumber.bind(this)
+    
     this.resetGame = this.resetGame.bind(this);
+    this.keyboardUser = this.keyboardUser.bind(this);
+    this.selectNumber = this.selectNumber.bind(this);
+    this.unselectNumber = this.unselectNumber.bind(this);
+    this.checkAnswer = this.checkAnswer.bind(this);
+    this.acceptAnswer = this.acceptAnswer.bind(this);
+    this.redraw = this.redraw.bind(this);
+
   }
   resetGame() {
     this.setState(INITIAL_STATE)
@@ -162,7 +170,7 @@ class Game extends Component {
     this.setState({ correct: correct });
   }
   acceptAnswer() {
-    var usedNumbers = this.state.usedNumbers.concat(this.state.selectedNumbers);
+    const usedNumbers = this.state.usedNumbers.concat(this.state.selectedNumbers);
     this.setState({
       selectedNumbers: [],
       usedNumbers:usedNumbers,
@@ -185,7 +193,7 @@ class Game extends Component {
     let {numberOfStars, usedNumbers} = this.state;
     let possibleNumbers = [];
 
-    for (var i=1;i<=9;i++) {
+    for (let i=1;i<=9;i++) {
       if(usedNumbers.indexOf(i) < 0) {
         possibleNumbers.push(i);
       }
@@ -227,18 +235,18 @@ class Game extends Component {
       correct, redraws, usedNumbers, doneStatus 
     } = this.state;
 
-    let bottomFrame = null;
+    let BottomFrame;
 
     if (doneStatus) {
-      bottomFrame = <DoneFrame doneStatus={doneStatus}
+      BottomFrame = <DoneFrame doneStatus={doneStatus}
                                resetGame={this.resetGame} />;
     } else {
-      bottomFrame = (
+      BottomFrame = (
         <NumbersFrame 
           selectedNumbers={selectedNumbers}
           selectNumber={this.selectNumber}
           usedNumbers={usedNumbers}
-          keyboardUser={this.keyboardUser.bind(this)} />
+          keyboardUser={this.keyboardUser} />
       );
     }
     return (
@@ -250,17 +258,14 @@ class Game extends Component {
           <ButtonFrame selectedNumbers={selectedNumbers} 
                        correct={correct}
                        redraws={redraws}
-                       checkAnswer={this.checkAnswer.bind(this)}
-                       acceptAnswer={this.acceptAnswer.bind(this)}
-                       redraw={this.redraw.bind(this)} />
+                       checkAnswer={this.checkAnswer}
+                       acceptAnswer={this.acceptAnswer}
+                       redraw={this.redraw} />
           <AnswerFrame selectedNumbers={selectedNumbers}
-                       unselectNumber={this.unselectNumber.bind(this)} 
-                       keyboardUser={this.keyboardUser.bind(this)} />
+                       unselectNumber={this.unselectNumber} 
+                       keyboardUser={this.keyboardUser} />
         </div>
-
-        
-        {bottomFrame}
-
+        {BottomFrame}
       </div>
     );
   }
