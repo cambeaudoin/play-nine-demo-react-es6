@@ -3,7 +3,7 @@ import './App.css';
 
 const StarsFrame = (props) => {
   let stars = [];
-    for (let i=0;i<props.numberOfStars; i++) {
+    for (let i = 0; i < props.numberOfStars; i++) {
       stars.push(
         <span className="glyphicon glyphicon-cog" key={"clicker" + i}></span>
       );
@@ -103,20 +103,19 @@ const NumbersFrame = (props) => {
   );
 }
 
-class DoneFrame extends Component {
-  render() {
-    return(
-      <div className="well text-center">
-        <h2>{this.props.doneStatus}</h2>
-        <button className="btn btn-default" onClick={this.props.resetGame} >Play again</button>
-      </div>
-    )
-  }
+const DoneFrame = (props) => {
+  return(
+    <div className="well text-center">
+      <h2>{props.doneStatus}</h2>
+      <button className="btn btn-default" onClick={props.resetGame} >Play again</button>
+    </div>
+  )
 }
 
+const randomNumber = () => (Math.floor(Math.random()*9) +1);
 const INITIAL_STATE = {
   selectedNumbers: [],
-  numberOfStars: Math.floor(Math.random()*9) +1,
+  numberOfStars: randomNumber(),
   usedNumbers: [],
   redraws: 5,
   correct: null, 
@@ -127,15 +126,12 @@ const INITIAL_STATE = {
 class Game extends Component {
   constructor() {
     super();
-
     this.state = INITIAL_STATE;
     // this.randomNumber = this.randomNumber.bind(this)
+    this.resetGame = this.resetGame.bind(this);
   }
   resetGame() {
     this.setState(INITIAL_STATE)
-  }
-  randomNumber() {
-    return Math.floor(Math.random()*9) +1;
   }
   keyboardUser(e) {
     if (e.keyCode === 32 || e.keyCode === 13) { //Space and Enter
@@ -171,13 +167,13 @@ class Game extends Component {
       selectedNumbers: [],
       usedNumbers:usedNumbers,
       correct: null,
-      numberOfStars: this.randomNumber(),
+      numberOfStars: randomNumber(),
     }, () => {this.updateDoneStatus() })
   }
   redraw() {
     if (this.state.redraws >0) {
       this.setState({
-        numberOfStars: this.randomNumber(),
+        numberOfStars: randomNumber(),
         correct: null,
         selectedNumbers: [],
         redraws: this.state.redraws - 1,
@@ -195,17 +191,17 @@ class Game extends Component {
       }
     }
 
-    var possibleCombinationSum = function(arr, n) {
+    const possibleCombinationSum = (arr, n) => {
       if (arr.indexOf(n) >= 0) { return true; }
       if (arr[0] > n) { return false; }
       if (arr[arr.length - 1] > n) {
         arr.pop();
         return possibleCombinationSum(arr, n);
       }
-      var listSize = arr.length, combinationsCount = (1 << listSize)
-      for (var i = 1; i < combinationsCount ; i++ ) {
-        var combinationSum = 0;
-        for (var j=0 ; j < listSize ; j++) {
+      const listSize = arr.length, combinationsCount = (1 << listSize)
+      for (let i = 1; i < combinationsCount ; i++ ) {
+        let combinationSum = 0;
+        for (let j=0 ; j < listSize ; j++) {
           if (i & (1 << j)) { combinationSum += arr[j]; }
         }
         if (n === combinationSum) { return true; }
@@ -235,12 +231,12 @@ class Game extends Component {
 
     if (doneStatus) {
       bottomFrame = <DoneFrame doneStatus={doneStatus}
-                               resetGame={this.resetGame.bind(this)} />;
+                               resetGame={this.resetGame} />;
     } else {
       bottomFrame = (
         <NumbersFrame 
           selectedNumbers={selectedNumbers}
-          selectNumber={this.selectNumber.bind(this)}
+          selectNumber={this.selectNumber}
           usedNumbers={usedNumbers}
           keyboardUser={this.keyboardUser.bind(this)} />
       );
