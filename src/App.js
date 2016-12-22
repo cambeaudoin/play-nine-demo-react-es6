@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
 
-class StarsFrame extends Component {
-  render() {
-  
-    let stars = [];
-    for (let i=0;i<this.props.numberOfStars; i++) {
+const StarsFrame = (props) => {
+  let stars = [];
+    for (let i=0;i<props.numberOfStars; i++) {
       stars.push(
         <span className="glyphicon glyphicon-cog" key={"clicker" + i}></span>
       );
@@ -18,101 +16,91 @@ class StarsFrame extends Component {
         </div>
       </div>
     );
-  }
 }
 
-class ButtonFrame extends Component {
-  render() {
-    var button, disabled;
-    const correct = this.props.correct;
+const ButtonFrame = (props) => {
+  let button, disabled;
 
-    switch(correct) {
-      case true: 
-        button = (
-          <button className="btn btn-success btn-lg"
-                  onClick={this.props.acceptAnswer.bind(null)}>
-            <span className="glyphicon glyphicon-ok" />
-          </button>
-        );
-        break;
-      case false: 
-        button = (
-          <button className="btn btn-danger btn-lg">
-            <span className="glyphicon glyphicon-remove" />
-          </button>
-        );
-        break;
-      default:
-        disabled = (this.props.selectedNumbers.length === 0);
-        button = (
-          <button className="btn btn-primary btn-lg" disabled={disabled}
-                  onClick={this.props.checkAnswer.bind(null)} >
-            =
-          </button>
-        );
-    }
-
-    return (
-      <div id="button-frame">
-        {button}<br /><br />
-        <button className="btn btn-warning btn-xs" onClick={this.props.redraw} disabled={this.props.redraws === 0}>
-          <span className="glyphicon glyphicon-refresh" />
-          &nbsp;{this.props.redraws}
+  switch(props.correct) {
+    case true: 
+      button = (
+        <button className="btn btn-success btn-lg"
+                onClick={props.acceptAnswer.bind(null)}>
+          <span className="glyphicon glyphicon-ok" />
         </button>
-      </div>
-    );
-  }
-}
-
-class AnswerFrame extends Component {
-  render() {
-    const props = this.props;
-    const keyboardUser = props.keyboardUser;
-    const selectedNumbers = props.selectedNumbers.map(function(i) {
-      return (
-        <button
-          onKeyUp={(e) => (keyboardUser(e) ? props.unselectNumber(i) : null)} 
-          onClick={props.unselectNumber.bind(null, i)} key={"number"+i}>
-          {i}
+      );
+      break;
+    case false: 
+      button = (
+        <button className="btn btn-danger btn-lg">
+          <span className="glyphicon glyphicon-remove" />
         </button>
-      )
-    })
-    return (
-      <div id="answer-frame">
-        <div className="well">
-          {selectedNumbers}
-        </div>
-      </div>
-    );
+      );
+      break;
+    default:
+      disabled = (props.selectedNumbers.length === 0);
+      button = (
+        <button className="btn btn-primary btn-lg" disabled={disabled}
+                onClick={props.checkAnswer.bind(null)} >
+          =
+        </button>
+      );
   }
+
+  return (
+    <div id="button-frame">
+      {button}<br /><br />
+      <button className="btn btn-warning btn-xs" onClick={props.redraw} disabled={props.redraws === 0}>
+        <span className="glyphicon glyphicon-refresh" />
+        &nbsp;{props.redraws}
+      </button>
+    </div>
+  );
 }
 
-class NumbersFrame extends Component {
-  render() {
-    let numbers = [];
-    let className;
-    let {selectNumber, selectedNumbers, usedNumbers, keyboardUser} = this.props;
-
-    for (let i = 1; i <=9; i++) {
-      className="number selected-" + (selectedNumbers.indexOf(i)>=0);
-      className+=" used-" + (usedNumbers.indexOf(i)>=0);
-      numbers.push(
-        <button 
-          className={className} 
-          onKeyUp={(e) => (keyboardUser(e) ? selectNumber(i) : null)} 
-          onClick={selectNumber.bind(null, i)} 
-          key={"num" + i}
-          >{i}</button>
-      )
-    }
+const AnswerFrame = (props) => {
+  const selectedNumbers = props.selectedNumbers.map((i) => {
     return (
-      <div id="numbers-frame">
-        <div className="well">
-          {numbers}
-        </div>
+      <button
+        onKeyUp={(e) => (props.keyboardUser(e) ? props.unselectNumber(i) : null)} 
+        onClick={props.unselectNumber.bind(null, i)} key={"number"+i}>
+        {i}
+      </button>
+    )
+  })
+  return (
+    <div id="answer-frame">
+      <div className="well">
+        {selectedNumbers}
       </div>
-    );
+    </div>
+  );
+}
+
+const NumbersFrame = (props) => {
+  let className;
+  const numbers = [];
+  const {selectNumber, selectedNumbers, usedNumbers, keyboardUser} = props;
+
+  for (let i = 1; i <=9; i++) {
+    className="number selected-" + (selectedNumbers.indexOf(i)>=0);
+    className+=" used-" + (usedNumbers.indexOf(i)>=0);
+    numbers.push(
+      <button 
+        className={className} 
+        onKeyUp={(e) => (keyboardUser(e) ? selectNumber(i) : null)} 
+        onClick={selectNumber.bind(null, i)} 
+        key={"num" + i}
+        >{i}</button>
+    )
   }
+  return (
+    <div id="numbers-frame">
+      <div className="well">
+        {numbers}
+      </div>
+    </div>
+  );
 }
 
 class DoneFrame extends Component {
@@ -239,7 +227,7 @@ class Game extends Component {
   }
   render() {
     let { 
-      numberOfStars, selectedNumbers, keyboardUser,
+      numberOfStars, selectedNumbers,
       correct, redraws, usedNumbers, doneStatus 
     } = this.state;
 
@@ -254,7 +242,7 @@ class Game extends Component {
           selectedNumbers={selectedNumbers}
           selectNumber={this.selectNumber.bind(this)}
           usedNumbers={usedNumbers}
-          keyboardUser={keyboardUser} />
+          keyboardUser={this.keyboardUser.bind(this)} />
       );
     }
     return (
@@ -271,7 +259,7 @@ class Game extends Component {
                        redraw={this.redraw.bind(this)} />
           <AnswerFrame selectedNumbers={selectedNumbers}
                        unselectNumber={this.unselectNumber.bind(this)} 
-                       keyboardUser={keyboardUser} />
+                       keyboardUser={this.keyboardUser.bind(this)} />
         </div>
 
         
